@@ -1,0 +1,18 @@
+{
+  "created_by": "username",
+  "credential": "ansible user",
+  "extra_vars": "{}",
+  "finished": "2019-06-18T17:33:59.776720+00:00",
+  "friendly_name": "Job",
+  "hosts": {},
+  "id": 2213,
+  "inventory": "DR01",
+  "limit": "docker_hosts",
+  "name": "Docker - Cleanup",
+  "playbook": "ansible/docker_infrastructure.yml",
+  "project": "Infrastructure project",
+  "started": "2019-06-18T17:33:45.063331+00:00",
+  "status": "failed",
+  "traceback": "",
+  "url": "https://ansible.example.com/#/jobs/playbook/2213"
+}

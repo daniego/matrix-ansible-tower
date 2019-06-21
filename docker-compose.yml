@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    build: .
+    image: daniego/matrix_ansible_tower_bot:latest
+    ports:
+      - "8090:80"
+    env_file:
+      - .docker_env
+    restart: always

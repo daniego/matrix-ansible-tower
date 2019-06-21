@@ -1,0 +1,38 @@
+{% if ansible_tower_payload['status'] | length %}
+{# Formatting message #}
+<p>
+    <strong>
+        <font color="{{ ansible_tower_payload['color'] }}">Ansible Tower {{ ansible_tower_payload['friendly_name'] }} [{{ ansible_tower_payload['name'] }}] on {{ ansible_tower_payload['inventory'] }}</font>
+    </strong>
+</p>
+<blockquote>
+  <p>
+    Project:  {{ ansible_tower_payload['project'] }}</br>
+    Playbook: {{ ansible_tower_payload['playbook'] }}</br>
+{% if ansible_tower_payload['limit'] %}
+    Limit:    {{ ansible_tower_payload['limit'] }}</br>
+{% endif %}
+    <em>
+      Started  @ {{ ansible_tower_payload['started'] }}</br>
+      Finished @ {{ ansible_tower_payload['finished'] }}
+    </em>
+  </p>
+</blockquote>
+{% else %}
+{# Sending raw payload #}
+<p>
+    <strong>
+        <font color="{{ ansible_tower_payload['color'] }}">Ansible Tower {{ ansible_tower_payload['friendly_name'] }}</font>
+    </strong>
+</p>
+<blockquote>
+  <p>
+    <em>
+      {% for key, value in ansible_tower_payload.items() %}
+          <p><strong>{{ key }}</strong> <span>{{ value }}</span></p>
+      {% endfor %}
+      {{ ansible_tower_payload }}
+    </em>
+  </p>
+</blockquote>
+{% endif %}
