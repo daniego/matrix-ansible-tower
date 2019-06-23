@@ -8,12 +8,13 @@ from flask import Flask, render_template, request
 from flask.logging import create_logger
 import settings
 
-app = Flask(__name__) # pylint: disable=invalid-name
+app = Flask(__name__)
 LOG = create_logger(app)
 LOG.setLevel(settings.LOG_LEVEL)
 
 LOG.info('Matrix server: %s', settings.MATRIX_SERVER)
 LOG.info('Matrix rooms: %s', settings.MATRIX_ROOMS)
+
 
 def validate_token(token):
     '''
@@ -23,6 +24,7 @@ def validate_token(token):
         return True
     return False
 
+
 def validate_room(room):
     '''
     validate_room function
@@ -31,6 +33,7 @@ def validate_room(room):
     if room in settings.MATRIX_ROOMS.keys():
         return settings.MATRIX_ROOMS[room]
     return False
+
 
 def send_message(matrix_room, message_plain, message):
     '''
@@ -52,10 +55,11 @@ def send_message(matrix_room, message_plain, message):
         )
     except MatrixRequestError as ex:
         LOG.error('send_message_event failure %s', ex)
-        return json.dumps({'success': False}), 417, {'ContentType':'application/json'}
+        return json.dumps({'success': False}), 417, {'ContentType': 'application/json'}
 
     LOG.debug('Matrix Response: %s', response)
-    return json.dumps({'success': True}), 200, {'ContentType':'application/json'}
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
 
 def update_name(ansible_tower_payload):
     '''
@@ -67,6 +71,7 @@ def update_name(ansible_tower_payload):
     except KeyError:
         return ""
 
+
 def prepare_message(matrix_room):
     '''
     One day
@@ -77,22 +82,16 @@ def prepare_message(matrix_room):
     if 'failed' in status:
         ansible_tower_payload.update({"state": "failed",
                                       "color": "#ff0000",
-                                      "name": update_name(ansible_tower_payload)
-                                      }
-                                    )
+                                      "name": update_name(ansible_tower_payload)})
     elif 'successful' in status:
         ansible_tower_payload.update({"state": "successful",
                                       "color": "#33cc33",
-                                      "name": update_name(ansible_tower_payload)
-                                      }
-                                    )
+                                      "name": update_name(ansible_tower_payload)})
     else:
         ansible_tower_payload.update({"color": "#0056e2",
                                       "friendly_name": "unrecognized payload",
                                       "name": update_name(ansible_tower_payload),
-                                      "status": ""
-                                      }
-                                    )
+                                      "status": ""})
         LOG.info('Got and unrecognized status')
 
     message_plain = "Ansible Tower {friendly_name} {name} {status}".format(**ansible_tower_payload)
@@ -113,6 +112,7 @@ if isinstance(settings.MATRIX_ROOMS, str):
 else:
     MATRIX_ROOMS = settings.MATRIX_ROOMS
 
+
 @app.route("/", methods=['GET', 'POST'])
 def main_route():
     '''
@@ -125,10 +125,9 @@ def main_route():
         is_valid_token = validate_token(token)
 
         if not is_valid_token:
-            return json.dumps({'success': False, 'reason': 'token not valid'}), 403, {'ContentType':'application/json'} # pylint: disable=line-too-long
+            return json.dumps({'success': False, 'reason': 'token not valid'}), 403, {'ContentType': 'application/json'}
     else:
-        return json.dumps({'success': False, 'reason': 'token not provided'}), 403, {'ContentType':'application/json'} # pylint: disable=line-too-long
-
+        return json.dumps({'success': False, 'reason': 'token not provided'}), 403, {'ContentType': 'application/json'}
 
     # Validating room
     room = request.args.get('room')
@@ -137,15 +136,19 @@ def main_route():
         matrix_room = validate_room(room)
 
         if not matrix_room:
-            return json.dumps({'success': False, 'reason': 'room not valid'}), 403, {'ContentType':'application/json'} # pylint: disable=line-too-long
+            return json.dumps({'success': False, 'reason': 'room not valid'}), 403, {'ContentType': 'application/json'}
     else:
-        return json.dumps({'success': False, 'reason': 'room not provided'}), 403, {'ContentType':'application/json'} # pylint: disable=line-too-long
+        return json.dumps({'success': False, 'reason': 'room not provided'}), 403, {'ContentType': 'application/json'}
 
     if request.method == 'POST':
 
         return prepare_message(matrix_room)
 
-    return json.dumps({'success':False}), 405, {'ContentType':'application/json'}
+    return json.dumps({'success': False}), 405, {'ContentType': 'application/json'}
+
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8090, debug=settings.debug_enabled, threaded=True)
+    app.run(host='0.0.0.0',
+            port=8090,
+            debug=settings.debug_enabled,
+            threaded=True)

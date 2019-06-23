@@ -10,18 +10,30 @@ before_install:
 
 install:
   - pip install -r requirements.txt
+  - pip install python-coveralls
 
 script:
-  - pip install pylint
-  - cd matrix_ansible_tower_bot
-  - pylint matrix_ansible_tower_bot
-  - cd ..
+  # - docker run -i -w /srv/matrix_ansible_tower_bot/matrix_ansible_tower_bot --entrypoint=/opt/matrix_ansible_tower_bot/bin/flake8 daniego/matrix_ansible_tower_bot:$TRAVIS_BRANCH --statistics --count
+  # - docker run -i -w /srv/matrix_ansible_tower_bot/matrix_ansible_tower_bot -v ${PWD}/coverage_report:/coverage_report -e COVERAGE_FILE=/coverage_report/.coverage --entrypoint=/opt/matrix_ansible_tower_bot/bin/coverage daniego/matrix_ansible_tower_bot:$TRAVIS_BRANCH run -m unittest
+  # - docker run -i -w /srv/matrix_ansible_tower_bot/matrix_ansible_tower_bot -v ${PWD}/coverage_report:/coverage_report -e COVERAGE_FILE=/coverage_report/.coverage --entrypoint=/opt/matrix_ansible_tower_bot/bin/coverage daniego/matrix_ansible_tower_bot:$TRAVIS_BRANCH html -d /coverage_report/htmlcov
+
+  # - cd matrix_ansible_tower_bot
+  - flake8 --statistics --count
+  - coverage run -m unittest discover -s matrix_ansible_tower_bot
+  # - COVERAGE_FILE=/coverage_report/.coverage coverage html -d /coverage_report/htmlcov
+
+
   # Push branch/tag container
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push daniego/matrix_ansible_tower_bot:$TRAVIS_BRANCH
   - if [[ "${TRAVIS_BRANCH}" == "master" ]]; then docker tag daniego/matrix_ansible_tower_bot:$TRAVIS_BRANCH daniego/matrix_ansible_tower_bot:latest; docker push daniego/matrix_ansible_tower_bot:latest; fi
+
+after_success:
+  - coveralls
+
 # deploy:
 #   provider: script
 #   script:
 #     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 #     - docker push daniego/matrix_pingdom_bot:$TRAVIS_BRANCH
+# docker run -i -w /srv/matrix_ansible_tower_bot/matrix_ansible_tower_bot -v ${PWD}/coverage_report:/coverage_report -e COVERAGE_FILE=/coverage_report/.coverage --entrypoint=bash daniego/matrix_ansible_tower_bot:$TRAVIS_BRANCH -c "pip install python-coveralls & coveralls --data_file coverage_report/.coverage"

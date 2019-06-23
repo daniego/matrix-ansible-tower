@@ -2,6 +2,9 @@
 Dockerfile
 db.sqlite3
 **/__pycache__
+**/coverage_report
+**/.coverage
+**/htmlcov
 *.pyc
 *.pyo
 *.pyd
