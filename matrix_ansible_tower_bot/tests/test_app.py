@@ -1,12 +1,12 @@
 import matrix_ansible_tower_bot
-import unittest
+from unittest import TestCase
 import json
 # import settings
 
 headers = {'content-type': 'application/json'}
 
 
-class MyTestCase(unittest.TestCase):
+class MyTestCase(TestCase):
 
     def setUp(self):
         matrix_ansible_tower_bot.app.testing = True
@@ -44,12 +44,12 @@ class MyTestCase(unittest.TestCase):
         )
         data = json.loads(response.get_data(as_text=True))
 
-        assert response.status_code == 403
-        assert not data['success']
-        assert data['reason'] == 'token not valid'
+        self.assertEqual(response.status_code, 403, response)
+        self.assertFalse(data['success'])
+        self.assertTrue(data['reason'], 'token not valid')
 
     def test_function_validate_token_valid(self):
-        assert matrix_ansible_tower_bot.validate_token('thisISaSAMPLEtoken')
+        self.assertTrue(matrix_ansible_tower_bot.validate_token('thisISaSAMPLEtoken'))
 
     def test_function_validate_token_not_valid(self):
-        assert not matrix_ansible_tower_bot.validate_token('badtoken')
+        self.assertFalse(matrix_ansible_tower_bot.validate_token('badtoken'))
