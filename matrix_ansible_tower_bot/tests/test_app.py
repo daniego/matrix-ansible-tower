@@ -16,12 +16,9 @@ class MyTestCase(TestCase):
         # result = self.app.get('/')
         self.app.get('/')
 
-    def test_is_dict_matrix_tokens(self):
-        return True
-
-    def test_is_dict_matrix_rooms(self):
-        return True
-
+    '''
+    Testin access token - calls and function
+    '''
     def test_call_token_not_provided(self):
         response = self.app.post(
             '/',
@@ -53,3 +50,26 @@ class MyTestCase(TestCase):
 
     def test_function_validate_token_not_valid(self):
         self.assertFalse(matrix_ansible_tower_bot.validate_token('badtoken'))
+
+
+# ACCESS_TOKENS
+# MATRIX_ROOMS
+
+    def test_is_dict_access_tokens(self):
+        # self.assertDict(settings.MATRIX_TOKEN)
+        # print('1 {}'.format(type(matrix_ansible_tower_bot.settings.ACCESS_TOKENS)))
+        # print(type(matrix_ansible_tower_bot.normalize_token(matrix_ansible_tower_bot.settings.ACCESS_TOKENS)))
+        # normalize_token
+
+        self.assertIsInstance(matrix_ansible_tower_bot.normalize_token(matrix_ansible_tower_bot.settings.ACCESS_TOKENS), dict)
+        # print('222 {}'.format(type(matrix_ansible_tower_bot.normalize_token('Just a string'))))
+
+        # self.assertRaises(ExpectedException, matrix_ansible_tower_bot.normalize_token('Just a string'))
+        # return True
+        with self.assertRaises(Exception) as context:
+            # broken_function()
+            matrix_ansible_tower_bot.normalize_token('Just a string')
+        self.assertTrue('This is broken' in context.exception)
+
+    def test_is_dict_matrix_rooms(self):
+        return True

@@ -80,19 +80,21 @@ def prepare_message(matrix_room):
     status = ansible_tower_payload.get('status', 'none')
 
     if 'failed' in status:
-        ansible_tower_payload.update({"state": "failed",
-                                      "color": "#ff0000",
-                                      "name": update_name(ansible_tower_payload)})
+        update_payload = {"state": "failed",
+                          "color": "#ff0000",
+                          "name": update_name(ansible_tower_payload)}
     elif 'successful' in status:
-        ansible_tower_payload.update({"state": "successful",
-                                      "color": "#33cc33",
-                                      "name": update_name(ansible_tower_payload)})
+        update_payload = {"state": "successful",
+                          "color": "#33cc33",
+                          "name": update_name(ansible_tower_payload)}
     else:
-        ansible_tower_payload.update({"color": "#0056e2",
-                                      "friendly_name": "unrecognized payload",
-                                      "name": update_name(ansible_tower_payload),
-                                      "status": ""})
+        update_payload = {"color": "#0056e2",
+                          "friendly_name": "unrecognized payload",
+                          "name": update_name(ansible_tower_payload),
+                          "status": ""}
         LOG.info('Got and unrecognized status')
+
+    ansible_tower_payload.update(update_payload)
 
     message_plain = "Ansible Tower {friendly_name} {name} {status}".format(**ansible_tower_payload)
     message = render_template('message.html.j2', ansible_tower_payload=ansible_tower_payload)
@@ -100,17 +102,32 @@ def prepare_message(matrix_room):
     return send_message(matrix_room, message_plain, message)
 
 
-# Normalizing dictionary when comes from an environment variable
-if isinstance(settings.ACCESS_TOKENS, str):
-    ACCESS_TOKENS = ast.literal_eval(settings.ACCESS_TOKENS)
-else:
-    ACCESS_TOKENS = settings.ACCESS_TOKENS
+def normalize_token(tokens):
+    '''
+    Normalizing dictionary when comes from an environment variable
+    '''
+    # print(type(tokens))
+
+    if isinstance(tokens, str):
+        try:
+            return ast.literal_eval(tokens)
+            # print('a')
+        except ValueError:
+            # raise RuntimeError('Not running with the Werkzeug Server')
+            return "dds"
+        except SyntaxError:
+            print('sasasa')
+            # raise RuntimeError('Not running with the Werkzeug Server')
+            return "dds"
+    return tokens
+
+
+ACCESS_TOKENS = normalize_token(settings.ACCESS_TOKENS)
 
 # Normalizing dictionary when comes from an environment variable
+MATRIX_ROOMS = settings.MATRIX_ROOMS
 if isinstance(settings.MATRIX_ROOMS, str):
     MATRIX_ROOMS = ast.literal_eval(settings.MATRIX_ROOMS)
-else:
-    MATRIX_ROOMS = settings.MATRIX_ROOMS
 
 
 @app.route("/", methods=['GET', 'POST'])
